@@ -12,7 +12,10 @@
   "dependencies": {
     "cool-ascii-faces": "1.3.4",
     "ejs": "2.4.1",
-    "express": "4.13.3"
+    "express": "4.13.3",
+    "request": "2.74.0",
+    "jquery": "2.2.0",
+    "cheerio": "x.x.x"
   },
   "repository": {
     "type": "git",
