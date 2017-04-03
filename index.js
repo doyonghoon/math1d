@@ -35,19 +35,21 @@ app.get('/', function(req, res) {
 });
 
 app.get('/slots/:department/:crn', function(req, res) {
-  console.log(req.params.crn);
-  getCourses(request, req.params.crn, req.params.department);
-});
-
-app.get('/cool', function(request, response) {
-  response.send(cool());
+  getCourses(request, req.params.crn, req.params.department, function(course) {
+    console.log("callback: " + JSON.stringify(course));
+    if (course.seatsOpen > 0 || course.onWaitlist > 0) {
+      console.log('** OPEN **');
+    }
+//    res.render('pages/slots', course);
+    res.json(course);
+  });
 });
 
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
 });
 
-var getCourses = function(r, crn, dep) {
+var getCourses = function(r, crn, dep, callback) {
   r.post('https://www.deanza.edu/schedule/opcourselist.html',
          {
            form: {
@@ -57,11 +59,11 @@ var getCourses = function(r, crn, dep) {
          }, function(err, httpRes, body) {
            var $ = cheerio.load(body);
            var table = $('div.da-contents-body table');
-           findEmptySlots($, crn, table.children());
+           findEmptySlots($, crn, table.children(), callback);
          });
 }
 
-var findEmptySlots = function(c, crn, table) {
+var findEmptySlots = function(c, crn, table, callback) {
   var counter = 0;
   var lines = [];
   if (table && crn) {
@@ -76,10 +78,10 @@ var findEmptySlots = function(c, crn, table) {
       }
     });
   }
-  parseCourse(crn, lines);
+  parseCourse(crn, lines, callback);
 }
 
-var parseCourse = function(crnCode, lines) {
+var parseCourse = function(crnCode, lines, callback) {
   var course = {
     name: '',
     crn: crnCode,
@@ -92,21 +94,29 @@ var parseCourse = function(crnCode, lines) {
     console.log('item[' + i + ']: ' + lines[i]);
     // parse only digits
     if (lines[i].includes(crnCode)) {
-      
     } else {
       var tmp = lines[i].split(' ');
       var slots = parseSlotDigits(tmp);
-      console.log(tmp);
+      if (slots.length == 3) {
+        course.totalSeats = slots[0];
+        course.onWaitlist = slots[2];
+        course.totalWaitlist = slots[1];
+      } else if (slots.length == 4) {
+        course.totalSeats = slots[0];
+        course.seatsOpen = slots[1];
+        course.onWaitlist = slots[2];
+        course.totalWaitlist = slots[3];
+      }
+      callback(course);
     }
   }
 }
 
 var parseSlotDigits = function(str) {
   var slots = [];
-  console.log('str: ' + str);
-  for (j = 0; j < tmp.length; j++) {
-    if (isDigitsOnly(tmp[j])) {
-      slots[j].push(tmp[j]);
+  for (j = 0; j < str.length; j++) {
+    if (isDigitsOnly(str[j])) {
+      slots.push(str[j]);
     }
   }
   return slots;
