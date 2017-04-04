@@ -3,6 +3,7 @@ var request = require('request');
 var cool = require('cool-ascii-faces');
 var express = require('express');
 var app = express();
+var pg = require('pg');
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -44,6 +45,11 @@ app.get('/slots/:department/:crn', function(req, res) {
   });
 });
 
+app.get('/slots', function(req, res) {
+  res.render('pages/slots');
+  connectToDatabase();
+});
+
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
 });
@@ -78,6 +84,20 @@ var findEmptySlots = function(c, crn, table, callback) {
     });
   }
   parseCourse(crn, lines, callback);
+}
+
+var connectToDatabase = function() {
+  pg.defaults.ssl = process.env.DATABASE_SSL == 1;
+  pg.connect(process.env.DATABASE_URL, function(err, client) {
+    if (err) {
+      throw err;
+    }
+    console.log('Connected to postgres! Getting schemas...');
+    client.query('SELECT table_schema,table_name FROM information_schema.tables;')
+      .on('row', function(row) {
+        console.log(JSON.stringify(row));
+      });
+  });
 }
 
 var parseCourse = function(crnCode, lines, callback) {

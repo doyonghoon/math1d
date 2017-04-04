@@ -13,3 +13,5 @@ docker-compose.yml
 
 # Spacemacs surplus files
 .tern-port
+
+.env

@@ -8,12 +8,17 @@
 
 <div class="jumbotron text-center">
   <div class="container">
-    <a href="/" class="lang-logo">
-      <img src="/de-anza-college.png">
-    </a>
-    <h1><%= crn %></h1>
-    <p>Seats: <%= seatsOpen %> / <%= totalSeats %></p>
-    <p>Waitlist: <%= onWaitlist %> / <%= totalWaitlist %></p>
+      <form class="form-inline">
+          <div class="form-group">
+              <label class="sr-only" for="department">Department Code</label>
+              <input type="text" class="form-control" id="department" placeholder="Department Code">
+          </div>
+          <div class="form-group">
+              <label class="sr-only" for="crn">CRN</label>
+              <input type="text" class="form-control" id="crn" placeholder="CRN">
+          </div>
+          <button type="submit" class="btn btn-default">Add to the list!</button>
+          </form>
   </div>
 </div>
 </body>
