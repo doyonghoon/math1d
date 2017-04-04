@@ -40,7 +40,6 @@ app.get('/slots/:department/:crn', function(req, res) {
     if (course.seatsOpen > 0 || course.onWaitlist > 0) {
       console.log('** OPEN **');
     }
-//    res.render('pages/slots', course);
     res.json(course);
   });
 });
@@ -91,21 +90,20 @@ var parseCourse = function(crnCode, lines, callback) {
     totalWaitlist: 0
   };
   for (i = 0; i < lines.length; i++) {
-    console.log('item[' + i + ']: ' + lines[i]);
     // parse only digits
     if (lines[i].includes(crnCode)) {
     } else {
       var tmp = lines[i].split(' ');
       var slots = parseSlotDigits(tmp);
       if (slots.length == 3) {
-        course.totalSeats = slots[0];
-        course.onWaitlist = slots[2];
-        course.totalWaitlist = slots[1];
+        course.totalSeats = Number(slots[0]);
+        course.onWaitlist = Number(slots[2]);
+        course.totalWaitlist = Number(slots[1]);
       } else if (slots.length == 4) {
-        course.totalSeats = slots[0];
-        course.seatsOpen = slots[1];
-        course.onWaitlist = slots[2];
-        course.totalWaitlist = slots[3];
+        course.totalSeats = Number(slots[0]);
+        course.seatsOpen = Number(slots[1]);
+        course.onWaitlist = Number(slots[2]);
+        course.totalWaitlist = Number(slots[3]);
       }
       callback(course);
     }
@@ -133,7 +131,7 @@ var hasTaylor = function(c, table) {
       var line = c(this).text();
       if (line.includes('43294')) {
         len++;
-        console.log(line);
+//        console.log(line);
       }
     });
   }
@@ -144,7 +142,7 @@ var hasEconOne = function(c, table) {
   if (table) {
     table.each(function(i, item) {
       var line = c(this).text();
-      console.log(line);
+//      console.log(line);
     });
   }
   return true;
